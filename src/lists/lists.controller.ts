@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { ListsService } from 'src/lists/lists.service';
 
 @Controller('lists')
@@ -11,7 +11,7 @@ export class ListsController {
     const first = await this.listsService.getFirstMovie();
     return {
       list,
-      first
+      first,
     };
   }
 
