@@ -7,27 +7,31 @@ export class ListsController {
 
   @Get('homepage')
   async getListForHomepage() {
-    const homepage = await this.listsService.getListForHomepage();
-    return homepage;
+    const list = await this.listsService.getListForHomepage();
+    const first = await this.listsService.getFirstMovie();
+    return {
+      list,
+      first
+    };
   }
 
-  @Get('popular')
-  async getPopular() {
-    const homepage = await this.listsService.getPopular();
-    return homepage;
-  }
+  // @Get('popular')
+  // async getPopular() {
+  //   const homepage = await this.listsService.getPopular();
+  //   return homepage;
+  // }
 
-  @Get('top-rated')
-  async getTopRated() {
-    const homepage = await this.listsService.getTopRated();
-    return homepage;
-  }
+  // @Get('top-rated')
+  // async getTopRated() {
+  //   const homepage = await this.listsService.getTopRated();
+  //   return homepage;
+  // }
 
-  /**
-   * Get a specific Lists
-   */
-  @Get(':id')
-  async getDetail(@Param('id') id: number) {
-    return await this.listsService.getDetail(id);
-  }
+  // /**
+  //  * Get a specific Lists
+  //  */
+  // @Get(':id')
+  // async getDetail(@Param('id') id: number) {
+  //   return await this.listsService.getDetail(id);
+  // }
 }

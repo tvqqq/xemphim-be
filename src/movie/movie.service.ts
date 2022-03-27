@@ -7,12 +7,13 @@ export class MovieService {
 
   async getDetail(id: number) {
     const info = await this.getInfo(id);
-    const trailer = await this.getTrailers(id);
+    const trailers = await this.getTrailers(id);
     const credits = await this.getCredits(id);
     const recommendations = await this.getRecommendations(id);
     return {
+      id,
       info,
-      trailer,
+      trailers,
       credits,
       recommendations,
     };
@@ -20,38 +21,68 @@ export class MovieService {
 
   private async getInfo(id: number) {
     const movie = await this.appService.fetchTmdb(`movie/${id}`);
-    // Budget - Đạo diên 2
-    // Revenue - biên kịch 2
     // TODO: typescript type
-    return {
-      movie: movie,
+    const result = {
+      title: movie.title,
+      release_date: movie.release_date,
+      tagline: movie.tagline,
+      genres: movie.genres,
+      poster_path: movie.poster_path,
       backdrop_path: movie.backdrop_path,
+      revenue: movie.revenue,
+      runtime: movie.runtime,
+      overview: movie.overview,
     };
+    return result;
   }
 
   private async getTrailers(id: number) {
     const videos = await this.appService.fetchTmdb(`movie/${id}/videos`);
-    // TODO: get "type": "Trailer",
-    // TODO: typescript type
-    return {
-      videos,
-    };
+    const trailers = [];
+    videos.results.map((video) => {
+      if (video.type === 'Trailer' && video.site === 'YouTube') {
+        trailers.push({
+          name: video.name,
+          key: video.key,
+        });
+      }
+    });
+    return trailers;
   }
 
   private async getCredits(id: number) {
     const credits = await this.appService.fetchTmdb(`movie/${id}/credits`);
-    // Top Billed Cast
-    // TODO:"known_for_department": "Acting",
-    // TODO: top 6
-    // TODO: typescript type
-
-    // Director
-    // "job": "Director" array
-
-    // Wrtier
-    //  "job": "Writer" array
+    const casts = [];
+    const directors = [];
+    const writers = [];
+    credits.cast.map((person) => {
+      if (casts.length === 6) {
+        return;
+      }
+      if (
+        person.known_for_department === 'Acting' &&
+        person.profile_path !== null
+      ) {
+        casts.push({
+          id: person.id,
+          name: person.name,
+          character: person.character,
+          profile_path: person.profile_path,
+        });
+      }
+    });
+    credits.crew.map((person) => {
+      if (person.job === 'Director') {
+        directors.push(person.name);
+      }
+      if (person.job === 'Writer') {
+        writers.push(person.name);
+      }
+    });
     return {
-      credits,
+      casts,
+      directors,
+      writers,
     };
   }
 
@@ -59,13 +90,19 @@ export class MovieService {
     const recommendations = await this.appService.fetchTmdb(
       `movie/${id}/recommendations`,
     );
-
-    // 1. Get first request to get how much pages existed
-    // Random a number from 1 - latest pages
-    // Phrase 1: get 4 movies for templates (no slider yet)
-
-    return {
-      recommendations,
-    };
+    // TODO: get random numbers
+    const result = [];
+    recommendations.results.map((recommendation) => {
+      if (result.length === 4) {
+        return;
+      }
+      result.push({
+        id: recommendation.id,
+        title: recommendation.title,
+        release_date: recommendation.release_date,
+        poster_path: recommendation.poster_path,
+      });
+    });
+    return result;
   }
 }
